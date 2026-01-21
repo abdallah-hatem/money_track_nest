@@ -14,12 +14,19 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
 const transactions_service_1 = require("./transactions.service");
+const ocr_service_1 = require("./ocr.service");
 const transaction_dto_1 = require("./dto/transaction.dto");
+const path = require("path");
+const fs = require("fs");
 let TransactionsController = class TransactionsController {
     transactionsService;
+    ocrService;
     constructor(transactionsService) {
         this.transactionsService = transactionsService;
+        this.ocrService = new ocr_service_1.OCRService();
     }
     async create(dto) {
         return this.transactionsService.addTransaction(dto);
@@ -35,6 +42,19 @@ let TransactionsController = class TransactionsController {
     }
     async parseText(dto) {
         return this.transactionsService.processRawText(dto.text, dto.email);
+    }
+    async extractTextFromImage(file, email) {
+        try {
+            const extractedText = await this.ocrService.extractTextFromImage(file.path);
+            fs.unlinkSync(file.path);
+            return { text: extractedText };
+        }
+        catch (error) {
+            if (file && file.path && fs.existsSync(file.path)) {
+                fs.unlinkSync(file.path);
+            }
+            throw error;
+        }
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -73,6 +93,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "parseText", null);
+__decorate([
+    (0, common_1.Post)('transactions/ocr'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('image', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads',
+            filename: (req, file, cb) => {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                cb(null, `screenshot-${uniqueSuffix}${path.extname(file.originalname)}`);
+            },
+        }),
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Body)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "extractTextFromImage", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [transactions_service_1.TransactionsService])

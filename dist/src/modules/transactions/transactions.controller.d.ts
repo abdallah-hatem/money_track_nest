@@ -2,6 +2,7 @@ import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto, TransactionShortcutDto } from './dto/transaction.dto';
 export declare class TransactionsController {
     private transactionsService;
+    private ocrService;
     constructor(transactionsService: TransactionsService);
     create(dto: CreateTransactionDto): Promise<{
         id: string;
@@ -54,5 +55,8 @@ export declare class TransactionsController {
         category: string;
         description: string;
         date: Date;
+    }>;
+    extractTextFromImage(file: Express.Multer.File, email: string): Promise<{
+        text: string;
     }>;
 }
