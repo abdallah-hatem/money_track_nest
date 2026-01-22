@@ -52,7 +52,13 @@ export function parseRawText(text: string): ParsedTransaction | null {
   // 2. Determine Type
   let type: 'income' | 'expense' = 'expense'; // Default to expense
 
-  if (INCOME_KEYWORDS.some((kw) => normalized.includes(kw))) {
+  // Check for explicit +/- signs first (highest priority)
+  const trimmedText = text.trim();
+  if (trimmedText.startsWith('+')) {
+    type = 'income';
+  } else if (trimmedText.startsWith('-')) {
+    type = 'expense';
+  } else if (INCOME_KEYWORDS.some((kw) => normalized.includes(kw))) {
     type = 'income';
   } else if (EXPENSE_KEYWORDS.some((kw) => normalized.includes(kw))) {
     type = 'expense';

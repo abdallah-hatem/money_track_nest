@@ -29,6 +29,7 @@ export class TransactionRepository {
           gte: today,
         },
       },
+      orderBy: { date: 'desc' },
     });
   }
 }

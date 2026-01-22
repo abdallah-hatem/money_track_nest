@@ -41,7 +41,14 @@ function parseRawText(text) {
         return null;
     const amount = parseFloat(amountMatch[1]);
     let type = 'expense';
-    if (INCOME_KEYWORDS.some((kw) => normalized.includes(kw))) {
+    const trimmedText = text.trim();
+    if (trimmedText.startsWith('+')) {
+        type = 'income';
+    }
+    else if (trimmedText.startsWith('-')) {
+        type = 'expense';
+    }
+    else if (INCOME_KEYWORDS.some((kw) => normalized.includes(kw))) {
         type = 'income';
     }
     else if (EXPENSE_KEYWORDS.some((kw) => normalized.includes(kw))) {

@@ -46,8 +46,23 @@ let TransactionsController = class TransactionsController {
     async extractTextFromImage(file, email) {
         try {
             const extractedText = await this.ocrService.extractTextFromImage(file.path);
+            console.log('=== OCR EXTRACTED TEXT ===');
+            console.log(extractedText);
+            console.log('=== END EXTRACTED TEXT ===');
+            const transactions = this.ocrService.parseMultipleTransactions(extractedText);
+            console.log('=== PARSED TRANSACTIONS ===');
+            console.log(JSON.stringify(transactions, null, 2));
+            console.log('=== END PARSED TRANSACTIONS ===');
+            const formattedText = this.ocrService.formatTransactionsForInput(transactions);
+            console.log('=== FORMATTED TEXT ===');
+            console.log(formattedText);
+            console.log('=== END FORMATTED TEXT ===');
             fs.unlinkSync(file.path);
-            return { text: extractedText };
+            return {
+                text: formattedText,
+                rawText: extractedText,
+                transactions
+            };
         }
         catch (error) {
             if (file && file.path && fs.existsSync(file.path)) {

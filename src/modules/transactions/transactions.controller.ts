@@ -75,11 +75,33 @@ export class TransactionsController {
         file.path,
       );
 
+      console.log('=== OCR EXTRACTED TEXT ===');
+      console.log(extractedText);
+      console.log('=== END EXTRACTED TEXT ===');
+
+      // Parse multiple transactions intelligently
+      const transactions = this.ocrService.parseMultipleTransactions(extractedText);
+
+      console.log('=== PARSED TRANSACTIONS ===');
+      console.log(JSON.stringify(transactions, null, 2));
+      console.log('=== END PARSED TRANSACTIONS ===');
+
+      // Format for the text input (one transaction per line with +/- signs)
+      const formattedText = this.ocrService.formatTransactionsForInput(transactions);
+
+      console.log('=== FORMATTED TEXT ===');
+      console.log(formattedText);
+      console.log('=== END FORMATTED TEXT ===');
+
       // Clean up uploaded file
       fs.unlinkSync(file.path);
 
-      // Return extracted text
-      return { text: extractedText };
+      // Return formatted text and parsed transactions
+      return {
+        text: formattedText,
+        rawText: extractedText,
+        transactions
+      };
     } catch (error) {
       // Clean up file on error
       if (file && file.path && fs.existsSync(file.path)) {

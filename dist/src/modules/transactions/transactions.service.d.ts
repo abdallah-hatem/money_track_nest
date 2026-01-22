@@ -13,12 +13,12 @@ export declare class TransactionsService {
     getDailySummary(email: string): Promise<{
         transactions: {
             id: string;
-            userId: string;
             amount: number;
             type: string;
             category: string;
             description: string;
             date: Date;
+            userId: string;
         }[];
         totalIncome: number;
         totalExpense: number;

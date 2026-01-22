@@ -38,6 +38,7 @@ let TransactionRepository = class TransactionRepository {
                     gte: today,
                 },
             },
+            orderBy: { date: 'desc' },
         });
     }
 };
